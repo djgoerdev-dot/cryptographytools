@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSA Private Encrypt & Public Decrypt Tool (PKCS#1 v1.5)</title>
+  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-icon">🔐</div>
+        <div>
+          <h1 class="app-title">RSA Private Encrypt & Public Decrypt Tool</h1>
+          <p class="app-subtitle">RSAES-PKCS1-V1_5 (Block Type 1 & Type 2) &bull; Single & Multi-Block Support</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnQuickDemo" class="btn btn-accent" title="Run end-to-end demo test">⚡ 1-Click Demo</button>
+        <button id="btnPasswordHeader" class="btn btn-secondary">🔐 64-Char Password</button>
+        <button id="btnJwtHeader" class="btn btn-secondary">🎫 JWT Studio</button>
+        <button id="btnGenKeyHeader" class="btn btn-secondary">🔑 Generate Keys</button>
+        <button id="btnThemeToggle" class="btn btn-icon" title="Toggle Dark/Light Mode">🌓</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="tab-encrypt">
+        <span class="tab-icon">🔒</span> Encrypt
+      </button>
+      <button class="nav-tab" data-tab="tab-decrypt">
+        <span class="tab-icon">🔓</span> Decrypt
+      </button>
+      <button class="nav-tab" data-tab="tab-password">
+        <span class="tab-icon">🔐</span> 64-Char Password &amp; Bcrypt
+      </button>
+      <button class="nav-tab" data-tab="tab-jwt">
+        <span class="tab-icon">🎫</span> JWT Studio (Sign &amp; Verify)
+      </button>
+      <button class="nav-tab" data-tab="tab-keys">
+        <span class="tab-icon">🔑</span> Key Generator & Manager
+      </button>
+      <button class="nav-tab" data-tab="tab-demo">
+        <span class="tab-icon">🧪</span> Step-by-Step Visualizer
+      </button>
+      <button class="nav-tab" data-tab="tab-docs">
+        <span class="tab-icon">📖</span> Guide & Code Samples
+      </button>
+    </nav>
+
+    <!-- Workflow Mode Quick Switcher -->
+    <div class="mode-selector-banner">
+      <span class="mode-banner-label">Workflow Preset:</span>
+      <button class="mode-pill active" id="btnModePrivateOrigin">
+        🛡️ Private Encrypt &rarr; Public Decrypt <span class="mode-desc">(Origin Proof / Signature)</span>
+      </button>
+      <button class="mode-pill" id="btnModePublicStandard">
+        🔒 Public Encrypt &rarr; Private Decrypt <span class="mode-desc">(Standard Confidentiality)</span>
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="tab-content-container">
+      
+      <!-- TAB 1: ENCRYPT -->
+      <section id="tab-encrypt" class="tab-pane active">
+        <div class="grid-two-cols">
+          <!-- Input Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2 id="encCardTitle">1. Encrypt Data</h2>
+              <div class="card-actions">
+                <button id="btnSampleEncrypt" class="btn btn-sm btn-ghost">Load Sample Input</button>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <!-- Key Mode Selector -->
+              <div class="key-mode-box">
+                <span class="key-mode-title">Encrypt With:</span>
+                <div class="key-mode-radios">
+                  <label class="radio-tag active" id="lblEncPrivate">
+                    <input type="radio" name="encKeyMode" value="private" checked>
+                    <span>🔑 Private Key (Signature / Origin Proof)</span>
+                  </label>
+                  <label class="radio-tag" id="lblEncPublic">
+                    <input type="radio" name="encKeyMode" value="public">
+                    <span>🌐 Public Key (Standard Confidentiality)</span>
+                  </label>
+                </div>
+              </div>
+              <!-- Key Section -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="encPrivateKey">RSA Private Key (PEM)</label>
+                  <div class="label-actions">
+                    <span id="encKeyBadge" class="badge badge-neutral">No Key</span>
+                    <label class="btn-file-upload">
+                      📁 Upload
+                      <input type="file" id="encKeyFile" accept=".pem,.key,.txt">
+                    </label>
+                  </div>
+                </div>
+                <textarea id="encPrivateKey" class="code-textarea" rows="5" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
+              </div>
+
+              <!-- Data Section -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="encPlaintext">Data to Encrypt</label>
+                  <div class="format-selector">
+                    <label><input type="radio" name="encInFormat" value="text" checked> UTF-8 Text</label>
+                    <label><input type="radio" name="encInFormat" value="hex"> Hex</label>
+                    <label><input type="radio" name="encInFormat" value="base64"> Base64</label>
+                  </div>
+                </div>
+                <textarea id="encPlaintext" class="code-textarea" rows="5" placeholder="Enter plaintext message or test data..."></textarea>
+                <div class="meta-row">
+                  <span id="encInputStats">0 characters &bull; 0 bytes</span>
+                  <label class="btn-file-upload btn-sm">
+                    📁 Load Data File
+                    <input type="file" id="encDataFile">
+                  </label>
+                </div>
+              </div>
+
+              <!-- Options Accordion -->
+              <div class="options-box">
+                <div class="option-item">
+                  <label for="encBlockType">Padding Scheme:</label>
+                  <select id="encBlockType" class="select-control">
+                    <option value="1" selected>PKCS#1 v1.5 Type 1 (00 01 FF... 00 M) &mdash; Standard for Private Encrypt</option>
+                    <option value="2">PKCS#1 v1.5 Type 2 (00 02 Random 00 M) &mdash; Randomized</option>
+                  </select>
+                </div>
+                <div class="option-item">
+                  <label for="encChunking">Payload Chunking:</label>
+                  <select id="encChunking" class="select-control">
+                    <option value="true" selected>Auto Multi-Block (Supports long texts of any size)</option>
+                    <option value="false">Strict Single Block (Max ~245 bytes for 2048-bit key)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button id="btnExecuteEncrypt" class="btn btn-primary btn-block btn-lg">
+                🔒 Encrypt with Private Key
+              </button>
+            </div>
+          </div>
+
+          <!-- Output Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>2. Encrypted Ciphertext Output</h2>
+              <div class="output-format-tabs">
+                <button class="subtab-btn active" data-format="base64">Base64</button>
+                <button class="subtab-btn" data-format="hex">Hex</button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="output-display-container">
+                <textarea id="encCiphertextOutput" class="code-textarea output-area" rows="12" readonly placeholder="Encrypted ciphertext will appear here..."></textarea>
+                <div class="meta-row">
+                  <span id="encOutputStats">0 bytes &bull; 0 blocks</span>
+                </div>
+              </div>
+
+              <div class="action-buttons-row">
+                <button id="btnCopyCiphertext" class="btn btn-secondary">📋 Copy Ciphertext</button>
+                <button id="btnDownloadCiphertext" class="btn btn-secondary">💾 Download File</button>
+                <button id="btnSendToDecrypt" class="btn btn-accent">➡️ Send to Decrypt Tab</button>
+              </div>
+
+              <div class="info-alert">
+                <div class="info-icon">💡</div>
+                <div class="info-text">
+                  <strong>How to Decrypt:</strong> The ciphertext generated by your <em>Private Key</em> can now be decrypted by anyone holding the matching <em>Public Key</em> using PKCS#1 v1.5 padding!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: DECRYPT -->
+      <section id="tab-decrypt" class="tab-pane">
+        <div class="grid-two-cols">
+          <!-- Input Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2 id="decCardTitle">1. Decrypt Data</h2>
+              <div class="card-actions">
+                <button id="btnSampleDecrypt" class="btn btn-sm btn-ghost">Load Sample Input</button>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <!-- Key Mode Selector -->
+              <div class="key-mode-box">
+                <span class="key-mode-title">Decrypt With:</span>
+                <div class="key-mode-radios">
+                  <label class="radio-tag active" id="lblDecPublic">
+                    <input type="radio" name="decKeyMode" value="public" checked>
+                    <span>🌐 Public Key (Verify Origin / Signature)</span>
+                  </label>
+                  <label class="radio-tag" id="lblDecPrivate">
+                    <input type="radio" name="decKeyMode" value="private">
+                    <span>🔑 Private Key (Standard Decryption)</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Key Section -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="decKey" id="decKeyLabel">RSA Public Key (PEM)</label>
+                  <div class="label-actions">
+                    <span id="decKeyBadge" class="badge badge-neutral">No Key</span>
+                    <label class="btn-file-upload">
+                      📁 Upload
+                      <input type="file" id="decKeyFile" accept=".pem,.key,.txt">
+                    </label>
+                  </div>
+                </div>
+                <textarea id="decKey" class="code-textarea" rows="5" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"></textarea>
+              </div>
+
+              <!-- Ciphertext Section -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="decCiphertext">Ciphertext to Decrypt</label>
+                  <div class="format-selector">
+                    <label><input type="radio" name="decInFormat" value="base64" checked> Base64</label>
+                    <label><input type="radio" name="decInFormat" value="hex"> Hex</label>
+                  </div>
+                </div>
+                <textarea id="decCiphertext" class="code-textarea" rows="5" placeholder="Paste Base64 or Hex encoded ciphertext here..."></textarea>
+                <div class="meta-row">
+                  <span id="decInputStats">0 bytes</span>
+                  <label class="btn-file-upload btn-sm">
+                    📁 Load Ciphertext File
+                    <input type="file" id="decDataFile">
+                  </label>
+                </div>
+              </div>
+
+              <!-- Options -->
+              <div class="options-box">
+                <div class="option-item">
+                  <label for="decBlockType">Expected Padding:</label>
+                  <select id="decBlockType" class="select-control">
+                    <option value="auto" selected>Auto-detect (Accepts Type 1 or Type 2)</option>
+                    <option value="1">Strict Type 1 (OpenSSL / Node / SunJCE)</option>
+                    <option value="2">Strict Type 2</option>
+                  </select>
+                </div>
+              </div>
+
+              <button id="btnExecuteDecrypt" class="btn btn-primary btn-block btn-lg">
+                🔓 Decrypt with Public Key
+              </button>
+            </div>
+          </div>
+
+          <!-- Output Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>2. Decrypted Plaintext Output</h2>
+              <div class="output-format-tabs">
+                <button class="subtab-btn-dec active" data-format="text">UTF-8 Text</button>
+                <button class="subtab-btn-dec" data-format="hex">Hex</button>
+                <button class="subtab-btn-dec" data-format="base64">Base64</button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="output-display-container">
+                <textarea id="decPlaintextOutput" class="code-textarea output-area" rows="12" readonly placeholder="Decrypted plaintext will appear here..."></textarea>
+                <div class="meta-row">
+                  <span id="decOutputStats">0 characters &bull; 0 bytes</span>
+                  <span id="decStatusBadge" class="badge badge-success hidden">Decrypted Successfully ✓</span>
+                </div>
+              </div>
+
+              <div class="action-buttons-row">
+                <button id="btnCopyPlaintext" class="btn btn-secondary">📋 Copy Plaintext</button>
+                <button id="btnDownloadPlaintext" class="btn btn-secondary">💾 Download Plaintext</button>
+              </div>
+
+              <div class="info-alert">
+                <div class="info-icon" id="decInfoAlertIcon">🛡️</div>
+                <div class="info-text" id="decInfoAlertText">
+                  <strong>Verification Notice:</strong> Because this was decrypted using the RSA <em>Public Key</em>, successful decryption proves mathematically that the message was encrypted by the holder of the corresponding <em>Private Key</em> without tampering.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: PASSWORD & BCRYPT -->
+      <section id="tab-password" class="tab-pane">
+        <div class="grid-two-cols">
+          <!-- Password Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>1. Random 64-Character Alphanumeric Password</h2>
+              <div class="card-actions">
+                <button id="btnRegenPassword" class="btn btn-primary btn-sm">⚡ Generate New Password</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="pwdOutput">Generated Password</label>
+                  <span id="pwdStats" class="badge badge-success">64 characters</span>
+                </div>
+                <div class="pwd-input-wrap">
+                  <textarea id="pwdOutput" class="code-textarea output-area" rows="4" readonly placeholder="Click Generate to create password..."></textarea>
+                </div>
+                <div class="meta-row">
+                  <span>Charset: <code>[a-zA-Z0-9]</code> (CSPRNG &bull; 381 bits entropy)</span>
+                  <button id="btnTogglePwdVis" class="btn btn-sm btn-ghost">👁️ Reveal / Hide</button>
+                </div>
+              </div>
+
+              <div class="options-box">
+                <div class="option-item">
+                  <label for="pwdLength">Password Length:</label>
+                  <input type="number" id="pwdLength" class="select-control" value="64" min="8" max="256">
+                </div>
+              </div>
+
+              <div class="action-buttons-row">
+                <button id="btnCopyPassword" class="btn btn-secondary">📋 Copy Password</button>
+                <button id="btnSendPwdToEncrypt" class="btn btn-accent">➡️ Send to RSA Encrypt Tab</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bcrypt Hash Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>2. PHP <code>PASSWORD_BCRYPT</code> Hash</h2>
+              <div class="card-actions">
+                <button id="btnHashPassword" class="btn btn-primary btn-sm">🔒 Re-Hash</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="bcryptHashOutput">Bcrypt Hash (PHP <code>password_hash</code>)</label>
+                  <span id="hashStats" class="badge badge-success">60 characters</span>
+                </div>
+                <textarea id="bcryptHashOutput" class="code-textarea output-area" rows="4" readonly placeholder="Bcrypt hash will appear here..."></textarea>
+                <div class="meta-row">
+                  <span id="hashBreakdown">Format: <code>$2y$10$&lt;22-salt-chars&gt;&lt;31-hash-chars&gt;</code></span>
+                </div>
+              </div>
+
+              <div class="options-box">
+                <div class="grid-two-cols">
+                  <div class="option-item">
+                    <label for="bcryptCost">Cost Factor (<code>cost</code>):</label>
+                    <select id="bcryptCost" class="select-control">
+                      <option value="8">8 (Faster)</option>
+                      <option value="10" selected>10 (PHP Default Standard)</option>
+                      <option value="11">11</option>
+                      <option value="12">12 (High Security)</option>
+                    </select>
+                  </div>
+                  <div class="option-item">
+                    <label for="bcryptPrefix">Prefix:</label>
+                    <select id="bcryptPrefix" class="select-control">
+                      <option value="2y" selected>$2y$ (PHP PASSWORD_BCRYPT Standard)</option>
+                      <option value="2b">$2b$ (BSD / Unix Bcrypt Standard)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="action-buttons-row">
+                <button id="btnCopyHash" class="btn btn-secondary">📋 Copy Hash</button>
+              </div>
+
+              <!-- PHP Code Preview -->
+              <div class="info-alert">
+                <div class="info-icon">🐘</div>
+                <div class="info-text">
+                  <strong>PHP Compatibility:</strong> This hash is 100% compatible with PHP's native:
+                  <pre class="step-code" style="margin-top: 0.5rem; padding: 0.5rem;" id="phpCodePreview"><code>$hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
+$isValid = password_verify($password, $hash); // true</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Tester -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h2>3. Test Verification (<code>password_verify</code>)</h2>
+            <button id="btnTestVerify" class="btn btn-accent">✓ Verify Password Against Hash</button>
+          </div>
+          <div class="card-body">
+            <div class="grid-two-cols">
+              <div class="form-group">
+                <label for="verifyPwdInput">Test Password</label>
+                <input type="text" id="verifyPwdInput" class="select-control" placeholder="Enter password to test...">
+              </div>
+              <div class="form-group">
+                <label for="verifyHashInput">Test Bcrypt Hash</label>
+                <input type="text" id="verifyHashInput" class="select-control" placeholder="Enter $2y$ or $2b$ hash...">
+              </div>
+            </div>
+            <div id="verifyResultAlert" class="info-alert hidden" style="margin-top: 0.5rem;">
+              <div class="info-icon" id="verifyResultIcon">✓</div>
+              <div class="info-text" id="verifyResultText"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: JWT STUDIO -->
+      <section id="tab-jwt" class="tab-pane">
+        <div class="grid-two-cols">
+          <!-- JWT Encode & Sign Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>1. Encode &amp; Sign JWT</h2>
+              <div class="card-actions">
+                <button id="btnSampleJwt" class="btn btn-sm btn-ghost">Load Sample Payload</button>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <!-- Algorithm Select -->
+              <div class="options-box">
+                <div class="option-item">
+                  <label for="jwtAlgorithm">Algorithm (<code>alg</code>):</label>
+                  <select id="jwtAlgorithm" class="select-control">
+                    <optgroup label="Asymmetric (RSA)">
+                      <option value="RS256" selected>RS256 (RSA with SHA-256) &mdash; Standard</option>
+                      <option value="RS384">RS384 (RSA with SHA-384)</option>
+                      <option value="RS512">RS512 (RSA with SHA-512)</option>
+                      <option value="PS256">PS256 (RSA PSS with SHA-256)</option>
+                    </optgroup>
+                    <optgroup label="Symmetric (HMAC)">
+                      <option value="HS256">HS256 (HMAC with SHA-256)</option>
+                      <option value="HS384">HS384 (HMAC with SHA-384)</option>
+                      <option value="HS512">HS512 (HMAC with SHA-512)</option>
+                    </optgroup>
+                    <optgroup label="Unsigned">
+                      <option value="none">none (Unsigned Plaintext Token)</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Header JSON -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="jwtHeaderInput" style="color: #f87171;">Header (JSON)</label>
+                  <span class="badge badge-neutral">Base64URL Part 1</span>
+                </div>
+                <textarea id="jwtHeaderInput" class="code-textarea" rows="3" style="border-color: rgba(239, 68, 68, 0.4);"></textarea>
+              </div>
+
+              <!-- Payload JSON -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="jwtPayloadInput" style="color: #c084fc;">Payload / Claims (JSON)</label>
+                  <span class="badge badge-neutral">Base64URL Part 2</span>
+                </div>
+
+                <!-- Timestamp (iat & exp) Generator Box -->
+                <div class="jwt-timestamp-box">
+                  <div class="jwt-timestamp-header">
+                    <div class="jwt-timestamp-title">
+                      <span>⏱️</span>
+                      <strong>Timestamp Generator (<code>iat</code> &amp; <code>exp</code>)</strong>
+                    </div>
+                    <div class="jwt-timestamp-presets">
+                      <label for="jwtExpDurationSelect">Expires in:</label>
+                      <select id="jwtExpDurationSelect" class="select-control select-sm">
+                        <option value="900">15 Minutes</option>
+                        <option value="1800">30 Minutes</option>
+                        <option value="3600" selected>1 Hour (Default)</option>
+                        <option value="7200">2 Hours</option>
+                        <option value="14400">4 Hours</option>
+                        <option value="43200">12 Hours</option>
+                        <option value="86400">24 Hours (1 Day)</option>
+                        <option value="604800">7 Days</option>
+                        <option value="2592000">30 Days</option>
+                        <option value="31536000">1 Year</option>
+                        <option value="custom">Custom Date &amp; Time...</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Custom Datetime Picker (visible when custom selected) -->
+                  <div id="jwtCustomExpRow" class="jwt-custom-exp-row hidden">
+                    <label for="jwtCustomExpInput">Pick Expiration Date &amp; Time:</label>
+                    <input type="datetime-local" id="jwtCustomExpInput" class="select-control select-sm" style="flex: 1;">
+                  </div>
+
+                  <!-- Action Buttons & Options -->
+                  <div class="jwt-timestamp-actions">
+                    <button type="button" id="btnGenIatExp" class="btn btn-sm btn-accent" title="Generate both iat (current time) and exp (expiration)">
+                      ⚡ Generate iat &amp; exp
+                    </button>
+                    <button type="button" id="btnAddIatOnly" class="btn btn-sm btn-ghost" title="Set iat to current Unix timestamp">
+                      + iat (now)
+                    </button>
+                    <button type="button" id="btnAddExpOnly" class="btn btn-sm btn-ghost" title="Set exp using selected duration">
+                      + exp only
+                    </button>
+                    <label class="jwt-nbf-checkbox-label" title="Also include nbf (Not Before) set to iat">
+                      <input type="checkbox" id="chkIncludeNbf">
+                      <span>+ nbf</span>
+                    </label>
+                  </div>
+
+                  <!-- Live Preview of generated timestamps -->
+                  <div id="jwtTimestampPreview" class="jwt-timestamp-preview">
+                    <span id="jwtTimestampPreviewText">Click "⚡ Generate iat &amp; exp" to generate current epoch timestamps into payload.</span>
+                  </div>
+                </div>
+
+                <textarea id="jwtPayloadInput" class="code-textarea" rows="7" style="border-color: rgba(168, 85, 247, 0.4);"></textarea>
+              </div>
+
+              <!-- Signing Key -->
+              <div class="form-group" id="jwtSignKeySection">
+                <div class="label-row">
+                  <label for="jwtSignKey" id="jwtSignKeyLabel">Signing Key (RSA Private Key PEM)</label>
+                  <div class="label-actions">
+                    <button id="btnUseActivePrivForJwt" class="btn btn-sm btn-secondary">Use Active RSA Key</button>
+                    <button id="btnUsePwdAsSecretForJwt" class="btn btn-sm btn-secondary hidden">Use 64-Char Password</button>
+                  </div>
+                </div>
+                <textarea id="jwtSignKey" class="code-textarea" rows="5" placeholder="-----BEGIN PRIVATE KEY----- ..."></textarea>
+              </div>
+
+              <button id="btnEncodeAndSignJwt" class="btn btn-primary btn-block btn-lg">
+                ⚡ Sign &amp; Encode JWT
+              </button>
+            </div>
+          </div>
+
+          <!-- JWT Decode & Verify Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>2. Decoded Token &amp; Claims Breakdown</h2>
+              <div class="card-actions">
+                <button id="btnClearJwtToken" class="btn btn-sm btn-ghost" title="Clear token">🗑️ Clear</button>
+                <button id="btnCopyJwtToken" class="btn btn-sm btn-secondary">📋 Copy Token</button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Raw Token Area -->
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="jwtRawToken">Encoded Token (Live Interactive)</label>
+                  <span id="jwtTokenPartsBadge" class="badge badge-neutral">3 Parts</span>
+                </div>
+                <textarea id="jwtRawToken" class="code-textarea output-area" rows="4" placeholder="Paste or view JWT token here... (header.payload.signature)"></textarea>
+                <div class="jwt-part-legends">
+                  <span class="legend-pill legend-header">Header</span>
+                  <span class="legend-pill legend-payload">Payload</span>
+                  <span class="legend-pill legend-signature">Signature</span>
+                </div>
+              </div>
+
+              <!-- Decoded Claims Breakdown Section -->
+              <div class="jwt-breakdown-card" id="jwtBreakdownCard">
+                <div class="jwt-breakdown-header">
+                  <div class="jwt-breakdown-title">
+                    <span class="breakdown-icon">📋</span>
+                    <h3>Payload Claims Breakdown</h3>
+                    <span id="jwtClaimsCountBadge" class="badge badge-accent">0 Claims</span>
+                    <span id="jwtAlgBadge" class="badge badge-neutral">RS256</span>
+                  </div>
+                  <div class="jwt-view-switcher">
+                    <button type="button" id="btnJwtViewTable" class="subtab-btn active">Table View</button>
+                    <button type="button" id="btnJwtViewJson" class="subtab-btn">JSON View</button>
+                    <button type="button" id="btnJwtSyncToEditor" class="btn btn-sm btn-ghost" title="Load decoded claims into Encoder form on left">⬅️ Load in Signer</button>
+                  </div>
+                </div>
+
+                <!-- Expiration Status Banner -->
+                <div id="jwtExpiryBanner" class="jwt-claim-banner hidden">
+                  <span id="jwtExpiryBannerIcon">⏳</span>
+                  <span id="jwtExpiryBannerText">Token active</span>
+                </div>
+
+                <!-- Structured Claims Table -->
+                <div id="jwtClaimsTableView" class="jwt-claims-table-wrapper">
+                  <table class="jwt-claims-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 22%;">Claim</th>
+                        <th style="width: 26%;">Description</th>
+                        <th style="width: 40%;">Decoded Value</th>
+                        <th style="width: 12%; text-align: center;">Copy</th>
+                      </tr>
+                    </thead>
+                    <tbody id="jwtClaimsTableBody">
+                      <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                          Paste a JWT token above to view its claims breakdown automatically.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Raw JSON View -->
+                <div id="jwtClaimsJsonView" class="jwt-claims-json-wrapper hidden">
+                  <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+                    <button type="button" id="btnCopyClaimsJson" class="btn btn-sm btn-secondary">📋 Copy Payload JSON</button>
+                  </div>
+                  <pre id="jwtClaimsJsonContent" class="code-output" style="max-height: 240px; margin: 0;"></pre>
+                </div>
+
+                <!-- Decoded Header Collapsible -->
+                <details class="code-accordion" style="margin-top: 0.75rem;">
+                  <summary style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
+                    ⚙️ Decoded JOSE Header (<span id="jwtHeaderSummary">alg: RS256, typ: JWT</span>)
+                  </summary>
+                  <div style="display: flex; justify-content: flex-end; margin: 0.4rem 0;">
+                    <button type="button" id="btnCopyHeaderJson" class="btn btn-sm btn-secondary">📋 Copy Header JSON</button>
+                  </div>
+                  <pre id="jwtHeaderJsonContent" class="code-output" style="margin-top: 0.25rem;"></pre>
+                </details>
+              </div>
+
+              <!-- Verification Key Section -->
+              <div class="form-group" id="jwtVerifyKeySection" style="margin-top: 1.25rem;">
+                <div class="label-row">
+                  <label for="jwtVerifyKey" id="jwtVerifyKeyLabel">Verification Key (Optional for Claims View)</label>
+                  <div class="label-actions">
+                    <button id="btnUseActivePubForJwt" class="btn btn-sm btn-secondary">Use Active RSA Key</button>
+                    <button id="btnUsePwdAsSecretForVerify" class="btn btn-sm btn-secondary hidden">Use 64-Char Password</button>
+                  </div>
+                </div>
+                <textarea id="jwtVerifyKey" class="code-textarea" rows="3" placeholder="Paste RSA Public Key PEM or HMAC secret to verify signature (optional)..."></textarea>
+              </div>
+
+              <!-- Verification Result Alert -->
+              <div id="jwtVerifyAlert" class="info-alert info-alert-neutral">
+                <div class="info-icon" id="jwtVerifyIcon">ℹ️</div>
+                <div class="info-text">
+                  <span id="jwtVerifyStatusText"><strong>Claims Decoded (Unverified):</strong> Claims parsed from token payload. Enter verification key to check signature authenticity.</span>
+                  <span id="jwtExpiryBadge" class="badge badge-warning hidden" style="margin-left: 0.5rem;">Token Expired</span>
+                </div>
+              </div>
+
+              <button id="btnVerifyJwt" class="btn btn-accent btn-block">
+                ✓ Verify Token Signature
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: KEYS -->
+      <section id="tab-keys" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h2>RSA Key Pair Generator & Manager</h2>
+            <div class="generator-controls">
+              <label for="keySizeSelect">Key Size:</label>
+              <select id="keySizeSelect" class="select-control">
+                <option value="1024">1024 bits (Fast, Legacy)</option>
+                <option value="2048" selected>2048 bits (Recommended Standard)</option>
+                <option value="3072">3072 bits (High Security)</option>
+                <option value="4096">4096 bits (Maximum Security)</option>
+              </select>
+
+              <label for="keyFormatSelect">Format:</label>
+              <select id="keyFormatSelect" class="select-control">
+                <option value="pkcs8" selected>PKCS#8 (Standard PEM)</option>
+                <option value="pkcs1">PKCS#1 (Traditional OpenSSL)</option>
+              </select>
+
+              <button id="btnGenerateNewKeys" class="btn btn-primary">⚡ Generate New Keypair</button>
+              <button id="btnApplyKeysToTabs" class="btn btn-accent">Apply to Encrypt/Decrypt</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="grid-two-cols">
+              <!-- Private Key Box -->
+              <div class="key-box">
+                <div class="key-box-header">
+                  <h3>Private Key (Keep Secret)</h3>
+                  <div class="key-actions">
+                    <button id="btnCopyPrivKey" class="btn btn-sm btn-ghost">📋 Copy</button>
+                    <button id="btnDownloadPrivKey" class="btn btn-sm btn-ghost">💾 Download PEM</button>
+                  </div>
+                </div>
+                <textarea id="mgrPrivateKey" class="code-textarea" rows="14" placeholder="Generated Private Key PEM..."></textarea>
+              </div>
+
+              <!-- Public Key Box -->
+              <div class="key-box">
+                <div class="key-box-header">
+                  <h3>Public Key (Share Freely)</h3>
+                  <div class="key-actions">
+                    <button id="btnCopyPubKey" class="btn btn-sm btn-ghost">📋 Copy</button>
+                    <button id="btnDownloadPubKey" class="btn btn-sm btn-ghost">💾 Download PEM</button>
+                  </div>
+                </div>
+                <textarea id="mgrPublicKey" class="code-textarea" rows="14" placeholder="Generated Public Key PEM..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: STEP-BY-STEP VISUALIZER -->
+      <section id="tab-demo" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h2>Interactive End-to-End Cryptographic Step-by-Step Visualizer</h2>
+            <button id="btnRunVisualizer" class="btn btn-primary">▶ Run Live Step-by-Step Test</button>
+          </div>
+          <div class="card-body">
+            <p class="section-desc">
+              Watch exactly how data is encoded, padded according to PKCS#1 v1.5, mathematically exponentiated with private exponent \(d\), and decrypted back with public exponent \(e\).
+            </p>
+
+            <div class="visualizer-steps">
+              <!-- Step 1 -->
+              <div class="step-card" id="vizStep1">
+                <div class="step-badge">Step 1</div>
+                <div class="step-content">
+                  <h4>Plaintext Input</h4>
+                  <pre class="step-code" id="vizPlaintext">&mdash;</pre>
+                  <div class="step-meta" id="vizPlainStats">0 bytes</div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="step-card" id="vizStep2">
+                <div class="step-badge">Step 2</div>
+                <div class="step-content">
+                  <h4>PKCS#1 v1.5 Padding Block (EB = 00 || BT || PS || 00 || D)</h4>
+                  <p class="step-expl">Block Type 01 with 0xFF padding octets:</p>
+                  <pre class="step-code" id="vizPaddingBlock">&mdash;</pre>
+                  <div class="step-meta" id="vizPaddingStats">0 bytes</div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="step-card" id="vizStep3">
+                <div class="step-badge">Step 3</div>
+                <div class="step-content">
+                  <h4>Private Key Modular Exponentiation: \(C = M^d \pmod n\)</h4>
+                  <p class="step-expl">Encrypted using Private Key exponent \(d\) and modulus \(n\):</p>
+                  <pre class="step-code" id="vizCiphertext">&mdash;</pre>
+                  <div class="step-meta" id="vizCipherStats">Ciphertext Base64</div>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="step-card" id="vizStep4">
+                <div class="step-badge">Step 4</div>
+                <div class="step-content">
+                  <h4>Public Key Decryption: \(M = C^e \pmod n\) &amp; Unpadding</h4>
+                  <p class="step-expl">Decrypted using Public Key exponent \(e = 65537\) and stripped of padding:</p>
+                  <pre class="step-code" id="vizDecrypted">&mdash;</pre>
+                  <div class="step-meta" id="vizDecStats">Match Status</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: DOCS & CODE SAMPLES -->
+      <section id="tab-docs" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h2>Technical Reference &amp; Interoperability Guide</h2>
+          </div>
+          <div class="card-body">
+            <h3>1. What is Private Key Encryption with PKCS#1 v1.5?</h3>
+            <p>
+              In classical asymmetric cryptography, encryption is conventionally done with a public key and decryption with a private key. However, many enterprise and legacy architectures (including payment gateways, banking hardware security modules, and custom signature-envelope protocols) perform <strong>encryption with a private key</strong> and <strong>decryption with the corresponding public key</strong>.
+            </p>
+            <p>
+              Under PKCS#1 v1.5 (RFC 2313 &amp; RFC 3447), the encryption block \(EB\) has the format:
+            </p>
+            <pre class="code-block"><code>EB = 0x00 || BT || PS || 0x00 || D</code></pre>
+            <ul>
+              <li><strong>BT = 0x01:</strong> Block Type 1. The padding string \(PS\) is filled with octets of value <code>0xFF</code> (at least 8 bytes). This is the exact block format used by OpenSSL (<code>RSA_private_encrypt</code>), Node.js (<code>crypto.privateEncrypt</code>), and Java SunJCE.</li>
+              <li><strong>BT = 0x02:</strong> Block Type 2. The padding string \(PS\) is filled with pseudorandom non-zero octets.</li>
+            </ul>
+
+            <h3 class="mt-4">2. Cross-Language Code Examples</h3>
+            
+            <div class="code-tabs">
+              <details open class="code-accordion">
+                <summary><strong>Python</strong> (Using this tool or <code>cryptography</code> module)</summary>
+                <pre class="code-block"><code># CLI Usage:
+python rsa_tool.py encrypt -k private_key.pem -i "Hello World"
+python rsa_tool.py decrypt -k public_key.pem -i "&lt;base64_ciphertext&gt;"
+
+# Python API:
+import rsa_crypto
+priv = rsa_crypto.load_private_key(open("private_key.pem").read())
+pub = rsa_crypto.load_public_key(open("public_key.pem").read())
+
+ciphertext = rsa_crypto.encrypt_private(b"Hello World", priv, block_type=1)
+plaintext = rsa_crypto.decrypt_public(ciphertext, pub)
+print(plaintext.decode("utf-8")) # "Hello World"</code></pre>
+              </details>
+
+              <details open class="code-accordion">
+                <summary><strong>Node.js</strong> (Built-in <code>crypto</code> module)</summary>
+                <pre class="code-block"><code>const crypto = require('crypto');
+const fs = require('fs');
+
+const privateKey = fs.readFileSync('private_key.pem', 'utf8');
+const publicKey = fs.readFileSync('public_key.pem', 'utf8');
+
+// Encrypt with Private Key (PKCS#1 v1.5)
+const cipher = crypto.privateEncrypt({
+  key: privateKey,
+  padding: crypto.constants.RSA_PKCS1_PADDING
+}, Buffer.from('Hello World'));
+
+// Decrypt with Public Key (PKCS#1 v1.5)
+const plain = crypto.publicDecrypt({
+  key: publicKey,
+  padding: crypto.constants.RSA_PKCS1_PADDING
+}, cipher);
+
+console.log(plain.toString()); // "Hello World"</code></pre>
+              </details>
+
+              <details open class="code-accordion">
+                <summary><strong>Java</strong> (Standard SunJCE Provider)</summary>
+                <pre class="code-block"><code>import javax.crypto.Cipher;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+
+// Encrypt with PrivateKey
+cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+byte[] ciphertext = cipher.doFinal("Hello World".getBytes(StandardCharsets.UTF_8));
+
+// Decrypt with PublicKey
+cipher.init(Cipher.DECRYPT_MODE, publicKey);
+byte[] plaintext = cipher.doFinal(ciphertext);
+System.out.println(new String(plaintext, StandardCharsets.UTF_8)); // "Hello World"</code></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="app.js?v=5"></script>
+</body>
+</html>
