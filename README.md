@@ -1,114 +1,188 @@
-# RSA Private Encrypt & Public Decrypt Tool
+# 🔐 Comprehensive Security & Cryptographic Toolkit
 
-A dedicated, comprehensive tool that allows you to easily **encrypt text or data using an RSA Private Key** and **decrypt it using the matching RSA Public Key**, implementing padding scheme **`RSAES-PKCS1-V1_5`** (RFC 2313 / RFC 3447).
+An all-in-one cryptographic suite featuring **RSA Private Key Encryption & Public Key Decryption** (`RSAES-PKCS1-V1_5`), a **64-Character Alphanumeric Password Generator with PHP-compatible `PASSWORD_BCRYPT` Hasher**, and a full-featured **JWT Studio** for signing, verifying, timestamp generating (`iat`/`exp`), and inspecting JSON Web Tokens.
 
-It provides:
-1. 🖥️ **Interactive Web GUI**: Visual browser-based interface with 1-click demo, live key generator, and step-by-step visualizer.
-2. 💻 **Command-Line Interface (CLI)**: Fast CLI tools available in both **Python** (`rsa_tool.py`) and **Node.js** (`rsa_tool.js`).
-3. 📦 **Core Cryptographic Library**: Modular engine (`rsa_crypto.py`) with support for PKCS#1 v1.5 Block Type 1 & Type 2, auto-chunking (multi-block) for payloads of arbitrary length, and PEM formats (PKCS#1 and PKCS#8).
-4. 🚀 **One-Click Launchers**: Windows `start_gui.bat` and `start_gui.ps1`.
+Available as an **Interactive Web GUI** (port 5000), a fast **Command-Line Interface (CLI)** in both Python and Node.js, and clean **modular Python libraries**.
 
 ---
 
-## Quick Start (Web GUI)
+## 📑 Table of Contents
 
-### Option A: Windows 1-Click
+- [Key Capabilities](#-key-capabilities)
+- [Prerequisites & Installation](#-prerequisites--installation)
+- [Quick Start](#-quick-start)
+- [Interactive Web GUI](#-interactive-web-gui)
+  - [1. RSA Encrypt & Decrypt (Dual-Mode)](#1-rsa-encrypt--decrypt-dual-mode)
+  - [2. 64-Char Password & Bcrypt Studio](#2-64-char-password--bcrypt-studio)
+  - [3. JWT Studio (Sign, Verify & Inspect)](#3-jwt-studio-sign-verify--inspect)
+  - [4. RSA Key Generator & Manager](#4-rsa-key-generator--manager)
+  - [5. Step-by-Step Visualizer](#5-step-by-step-visualizer)
+- [Command Line Interface (CLI)](#-command-line-interface-cli)
+  - [RSA Key Generation](#rsa-key-generation)
+  - [RSA Encryption & Decryption](#rsa-encryption--decryption)
+  - [64-Character Password & Bcrypt](#64-character-password--bcrypt)
+  - [JWT Sign & Verify](#jwt-sign--verify)
+- [Python API Reference](#-python-api-reference)
+  - [RSA Cryptography (`rsa_crypto.py`)](#rsa-cryptography-rsa_cryptopy)
+  - [Password & Bcrypt Tool (`password_tool.py`)](#password--bcrypt-tool-password_toolpy)
+  - [JWT Engine (`jwt_tool.py`)](#jwt-engine-jwt_toolpy)
+- [REST API Reference](#-rest-api-reference)
+- [Cross-Language Interoperability](#-cross-language-interoperability)
+- [Project Structure](#-project-structure)
+- [Automated Verification Tests](#-automated-verification-tests)
+- [Git & Version Control](#-git--version-control)
+
+---
+
+## 🚀 Key Capabilities
+
+1. **RSA Private Key Encryption / Public Key Decryption**:
+   - Dedicated implementation of RFC 2313 / RFC 3447 **`RSAES-PKCS1-V1_5`**.
+   - Dual-Mode support:
+     - 🛡️ **Private Encrypt &rarr; Public Decrypt** *(Digital Signature / Origin Proof)*
+     - 🔒 **Public Encrypt &rarr; Private Decrypt** *(Standard Confidentiality)*
+   - Support for **Block Type 1** (OpenSSL/Node.js/Java standard) and **Block Type 2** (randomized padding).
+   - Multi-block automatic chunking for payloads exceeding single-block modulus limit.
+2. **64-Character Alphanumeric Password & PHP Bcrypt Generator**:
+   - Cryptographically secure CSPRNG generator producing random 64-character passwords from `[a-zA-Z0-9]` with **~381 bits of entropy**.
+   - 100% PHP-compatible `PASSWORD_BCRYPT` implementation using `$2y$` (or `$2b$`) prefix with configurable cost factor (default: 10), fully verifiable via PHP's native `password_verify()`.
+3. **JWT Studio (Sign, Verify, Decode & Timestamps)**:
+   - Full RFC 7519 JSON Web Token engine supporting asymmetric and symmetric algorithms:
+     - **RS256, RS384, RS512** (RSA PKCS#1 v1.5)
+     - **PS256, PS384, PS512** (RSA PSS)
+     - **HS256, HS384, HS512** (HMAC-SHA)
+     - **none** (unsigned)
+   - **Zero-Latency Client-Side Breakdown**: Paste any JWT and instantly inspect its claims breakdown, RFC descriptions, formatted local timestamps, and active/expired status without needing a verification key.
+   - **Timestamp Generator (`iat` & `exp`)**: Generate current epoch (`iat`) and expiration (`exp`) with presets (`15m`, `30m`, `1h`, `2h`, `4h`, `12h`, `24h`, `7d`, `30d`, `1y`), custom calendar date-time picker, and optional `nbf`.
+   - **Per-Claim Copy**: 1-click copy buttons for every individual claim value, formatted date strings, payload JSON, and header JSON.
+
+---
+
+## 📦 Prerequisites & Installation
+
+### Requirements
+- **Python**: 3.8+ (tested on Python 3.8 - 3.13)
+- **Node.js**: (Optional) Node.js 18+ if using Node CLI or Node server.
+- **PHP**: (Optional) PHP 7.4+ or 8.x for cross-runtime CLI verification.
+
+### Install Dependencies
+Clone the repository and install required Python packages:
+
+```bash
+git clone https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+cd <REPO_NAME>
+pip install -r requirements.txt
+```
+
+*(Dependencies: `cryptography` and `bcrypt`)*
+
+---
+
+## ⚡ Quick Start
+
+### Windows 1-Click
 Double-click:
 ```bat
 start_gui.bat
 ```
 *(Or in PowerShell: `.\start_gui.ps1`)*
 
-### Option B: Python Server
+### Python Server
 ```bash
 python server.py
 # or
 python rsa_tool.py gui
 ```
 
-### Option C: Node.js Server
+### Node.js Server
 ```bash
 node server.js
 ```
 
-Your default web browser will open to `http://127.0.0.1:5000`.
+Your default web browser will open automatically to **`http://127.0.0.1:5000`**.
 
 ---
 
-## Web GUI Features
+## 🖥️ Interactive Web GUI
 
-- 🔄 **Workflow Mode Switcher**:
-  - 🛡️ **Private Encrypt &rarr; Public Decrypt** *(Digital Signature / Origin Proof)*
-  - 🔒 **Public Encrypt &rarr; Private Decrypt** *(Standard Confidentiality)*
-- ⚡ **1-Click Live Demo**: Click the **⚡ 1-Click Demo** button in the top navigation to instantly generate keys, encrypt test data, decrypt, and verify round-trip.
-- 🔒 **Encrypt Tab**:
-  - Choose key type: **Private Key** (signature/origin mode) or **Public Key** (confidentiality mode).
-  - Input formats: Plaintext UTF-8, Hex, Base64, or file upload.
-  - Padding schemes:
-    - **PKCS#1 v1.5 Block Type 1** (`00 01 FF...FF 00 M`): Standard for OpenSSL (`RSA_private_encrypt`), Node.js (`crypto.privateEncrypt`), and Java SunJCE.
-    - **PKCS#1 v1.5 Block Type 2** (`00 02 Random 00 M`): Randomized padding.
-  - Chunking mode: Automatic multi-block support for messages longer than single-block limits.
-  - Output formats: Base64 and Hex, with 1-click copy and file download.
-  - **➡️ Send to Decrypt Tab**: One-click transfer of ciphertext and matching key into the decrypt form.
-- 🔓 **Decrypt Tab**:
-  - Choose key type: **Private Key** (standard decryption) or **Public Key** (signature/origin verification).
+The Web GUI is designed with a responsive, modern dark/light interface organized into tabs:
+
+### 1. RSA Encrypt & Decrypt (Dual-Mode)
+- **Workflow Preset Switcher**: Toggle between **Origin Proof Mode** (Private Encrypt &rarr; Public Decrypt) and **Confidentiality Mode** (Public Encrypt &rarr; Private Decrypt).
+- **Encrypt Tab**:
+  - Input: Plaintext UTF-8, Hex, Base64, or file upload.
+  - Padding: PKCS#1 v1.5 Block Type 1 (`0x01`) or Block Type 2 (`0x02`).
+  - Output: Base64 and Hex with copy/download buttons and **"➡️ Send to Decrypt Tab"**.
+- **Decrypt Tab**:
   - Input ciphertext in Base64 or Hex.
-  - Auto-detection of block type and key size.
-  - Instant plaintext recovery and match verification.
-- 🎫 **JWT Studio (Sign & Verify)**:
-  - Full RFC 7519 JSON Web Token engine supporting asymmetric and symmetric algorithms.
-  - Algorithms: **RS256 / RS384 / RS512** (RSA PKCS#1 v1.5), **PS256 / PS384 / PS512** (RSA PSS), **HS256 / HS384 / HS512** (HMAC-SHA), and **none** (unsigned).
-  - ⏱️ **Timestamp Generator (`iat` & `exp`)**: One-click generation of current issue time (`iat`) and configurable expiration time (`exp`) with presets (`15m`, `30m`, `1h`, `2h`, `4h`, `12h`, `24h`, `7d`, `30d`, `1y`), custom calendar date-time picker, and optional `nbf` (not before).
-  - 📋 **Payload Claims Breakdown**: Instant automatic table inspector with RFC descriptions, human-readable date conversions, one-click copy of decoded values, and view toggle between Table View and JSON View.
-  - Expiration detection and color-coded 3-part token breakdown (Header &bull; Payload &bull; Signature).
-- 🔑 **Key Generator & Manager**:
-  - Generate 1024, 2048, 3072, or 4096-bit RSA keys.
-  - Export in PKCS#8 or PKCS#1 (Traditional OpenSSL) PEM format.
-  - One-click copy or download of `.pem` files.
-- 🧪 **Step-by-Step Visualizer**:
-  - Visual breakdown of the encryption block $EB = 0x00 \mathbin{\Vert} BT \mathbin{\Vert} PS \mathbin{\Vert} 0x00 \mathbin{\Vert} D$, modular exponentiation $C = M^d \pmod n$, and public key recovery $M = C^e \pmod n$.
+  - Automatically identifies block structure, modulus size, and recovers plaintext.
+
+### 2. 64-Char Password & Bcrypt Studio
+- Generate 64-character alphanumeric passwords (`[a-zA-Z0-9]`) using CSPRNG.
+- Generate PHP-compatible bcrypt hashes with configurable cost factor (4–31, default: 10) and prefix (`$2y$` or `$2b$`).
+- Interactive test verification verifying that `password_verify($password, $hash) === true`.
+- Live PHP code sample preview updated in real-time.
+
+### 3. JWT Studio (Sign, Verify & Inspect)
+- **Left Column — Encode & Sign**:
+  - Select algorithm (`RS256`, `HS256`, etc.).
+  - **⏱️ Timestamp Generator**: Generate `iat` (now) and `exp` with presets (`15m`, `1h`, `24h`, `7d`, `30d`, `custom date`) and optional `+ nbf`.
+  - **Active Key Reuse**: 1-click **"Use Active RSA Key"** (loads active RSA private key) or **"Use 64-Char Password"** (loads random HMAC secret).
+  - Live JSON syntax validation with formatted indentation.
+- **Right Column — Decoded Token & Claims Breakdown**:
+  - **Instant Decoding**: Paste any token and immediately view decoded header and payload claims on screen without requiring a public key.
+  - **Claims Table Inspector**: Detailed table showing claim name, RFC purpose (`sub`, `iss`, `aud`, `exp`, `iat`, `nbf`, etc.), and formatted values.
+  - **Human-Readable Timestamps**: Formatted local date/time strings with dynamic countdowns (e.g. `Expires in 45m` or `Expired 2h ago`).
+  - **1-Click Copy**: Copy individual claim values, formatted dates, payload JSON, or header JSON to your clipboard.
+  - **Live Verification**: Paste a public key or HMAC secret to mathematically verify signature validity.
+
+### 4. RSA Key Generator & Manager
+- Generate 1024, 2048, 3072, or 4096-bit RSA keypairs.
+- Export in PKCS#8 or PKCS#1 PEM formats.
+- 1-click clipboard copy or `.pem` file download.
+
+### 5. Step-by-Step Visualizer
+- Interactive breakdown of the PKCS#1 block construction:
+  $$EB = 0x00 \mathbin{\Vert} BT \mathbin{\Vert} PS \mathbin{\Vert} 0x00 \mathbin{\Vert} D$$
+- Mathematical explanation of modular exponentiation ($C = M^d \pmod n$) and recovery ($M = C^e \pmod n$).
 
 ---
 
-## Command Line Usage (CLI)
+## 💻 Command Line Interface (CLI)
 
-### 1. Python CLI (`rsa_tool.py`)
+The CLI tool (`rsa_tool.py`) provides commands for all cryptographic operations.
 
-#### Generate RSA Keypair:
+### RSA Key Generation
 ```bash
+# Generate 2048-bit keypair saved to ./keys directory
 python rsa_tool.py gen-keys --size 2048 --out-dir ./keys
+
+# PKCS#1 format with specific output filenames
+python rsa_tool.py gen-keys --size 2048 --format pkcs1 --priv-out priv.pem --pub-out pub.pem
 ```
 
-#### Encrypt with Private Key:
+### RSA Encryption & Decryption
 ```bash
-# Output as Base64 (default)
-python rsa_tool.py encrypt -k ./keys/private_key.pem -i "Secret message"
+# Encrypt with Private Key (PKCS#1 v1.5, default)
+python rsa_tool.py encrypt -k ./keys/private_key.pem -i "Secret text message"
 
-# Or encrypt a file and save ciphertext to file
-python rsa_tool.py encrypt -k ./keys/private_key.pem -f message.txt -o cipher.b64
-```
+# Encrypt a binary file and save Base64 output to file
+python rsa_tool.py encrypt -k ./keys/private_key.pem -f document.pdf -o cipher.b64
 
-#### Decrypt with Public Key:
-```bash
-# Decrypt Base64 ciphertext
-python rsa_tool.py decrypt -k ./keys/public_key.pem -i "<base64_ciphertext>"
+# Decrypt Base64 ciphertext with Public Key
+python rsa_tool.py decrypt -k ./keys/public_key.pem -i "<base64_string>"
 
-# Or decrypt from file
+# Decrypt from ciphertext file
 python rsa_tool.py decrypt -k ./keys/public_key.pem -f cipher.b64
 ```
 
-#### Run Built-in Self Test:
-```bash
-python rsa_tool.py test
-```
-
-#### Generate 64-Character Alphanumeric Password & PHP Bcrypt Hash:
+### 64-Character Password & Bcrypt
 ```bash
 # Generate 64-character password + $2y$ Bcrypt hash
 python rsa_tool.py password
 
 # Custom length or cost factor:
-python rsa_tool.py password --length 64 --cost 10
+python rsa_tool.py password --length 64 --cost 12 --prefix 2y
 
 # Output as JSON:
 python rsa_tool.py password --json
@@ -117,189 +191,231 @@ python rsa_tool.py password --json
 python rsa_tool.py password -p "<password>" --verify "<bcrypt_hash>"
 ```
 
-#### JWT Encode, Sign & Verify:
+### JWT Sign & Verify
 ```bash
-# Sign JWT using RSA Private Key (RS256) with auto-generated iat & exp (1 hour)
+# Sign with RSA Private Key (RS256) with auto-generated iat & exp (1 hour)
 python rsa_tool.py jwt-sign --alg RS256 -k ./keys/private_key.pem -p '{"sub":"usr_123","role":"admin"}' --add-timestamps
 
-# Sign JWT with custom expiration (e.g. 24 hours = 86400 seconds)
-python rsa_tool.py jwt-sign --alg HS256 -k "my-secret-key-1234567890" -p '{"sub":"usr_123"}' --expires-in 86400
+# Sign with HMAC Secret (HS256) and custom expiration (24 hours = 86400s)
+python rsa_tool.py jwt-sign --alg HS256 -k "my-secret-key" -p '{"sub":"usr_123"}' --expires-in 86400
 
-# Verify JWT using RSA Public Key (RS256)
-python rsa_tool.py jwt-verify -t "<jwt_token>" -k ./keys/public_key.pem
+# Verify with RSA Public Key
+python rsa_tool.py jwt-verify -t "<token>" -k ./keys/public_key.pem
 
-# Verify JWT using HMAC secret (HS256)
-python rsa_tool.py jwt-verify -t "<jwt_token>" -k "my-secret-key-1234567890"
+# Verify with HMAC Secret
+python rsa_tool.py jwt-verify -t "<token>" -k "my-secret-key"
 
-# Decode claims without key (unverified)
-python rsa_tool.py jwt-verify -t "<jwt_token>"
+# Decode claims without verification key (unverified inspection)
+python rsa_tool.py jwt-verify -t "<token>"
 
 # Output verification results as JSON
-python rsa_tool.py jwt-verify -t "<jwt_token>" -k ./keys/public_key.pem --json
+python rsa_tool.py jwt-verify -t "<token>" -k ./keys/public_key.pem --json
 ```
 
 ---
 
-### 2. Node.js CLI (`rsa_tool.js`)
+## 🐍 Python API Reference
 
-```bash
-# Generate keys
-node rsa_tool.js gen-keys --size 2048 --out-dir ./keys
+### RSA Cryptography (`rsa_crypto.py`)
+```python
+import rsa_crypto
 
-# Encrypt with Private Key
-node rsa_tool.js encrypt -k ./keys/private_key.pem -i "Secret message"
+# 1. Generate keypair
+priv_pem, pub_pem = rsa_crypto.generate_key_pair(key_size=2048)
 
-# Decrypt with Public Key
-node rsa_tool.js decrypt -k ./keys/public_key.pem -i "<base64_ciphertext>"
+# 2. Load keys
+priv = rsa_crypto.load_private_key(priv_pem)
+pub = rsa_crypto.load_public_key(pub_pem)
 
-# Generate 64-char password & PHP Bcrypt hash
-node rsa_tool.js password
+# 3. Encrypt with Private Key (Block Type 1)
+ciphertext = rsa_crypto.encrypt_private(b"Hello World", priv, block_type=1)
+
+# 4. Decrypt with Public Key
+plaintext = rsa_crypto.decrypt_public(ciphertext, pub)
+print(plaintext.decode("utf-8")) # "Hello World"
+```
+
+### Password & Bcrypt Tool (`password_tool.py`)
+```python
+import password_tool
+
+# 1. Generate 64-char alphanumeric password
+password = password_tool.generate_password(64)
+
+# 2. Hash with PHP PASSWORD_BCRYPT logic ($2y$)
+bcrypt_hash = password_tool.hash_password(password, cost=10, prefix="2y")
+
+# 3. Verify password
+is_valid = password_tool.verify_password(password, bcrypt_hash)
+print(is_valid) # True
+```
+
+### JWT Engine (`jwt_tool.py`)
+```python
+import jwt_tool
+
+# 1. Standalone timestamp generator
+ts = jwt_tool.generate_timestamps(expires_in=3600, include_nbf=True)
+# {'iat': 1776135000, 'exp': 1776138600, 'nbf': 1776135000}
+
+# 2. Sign token with RSA Private Key (RS256)
+token = jwt_tool.encode_jwt(
+    payload={"sub": "usr_123", "role": "admin"},
+    key=priv_pem,
+    algorithm="RS256",
+    add_timestamps=True,
+    expires_in=7200
+)
+
+# 3. Verify token with RSA Public Key
+result = jwt_tool.decode_jwt(token, key=pub_pem, verify=True)
+print("Valid:", result["valid"])
+print("Payload:", result["payload"])
+
+# 4. Decode claims without key (unverified inspection)
+unverified = jwt_tool.decode_jwt(token, key=None)
+print("Claims:", unverified["payload"])
 ```
 
 ---
 
-### 3. Password Generation & PHP `PASSWORD_BCRYPT` Compatibility
+## 🌐 REST API Reference
 
-Module: `password_tool.py`
+The local server exposes RESTful JSON endpoints on `http://127.0.0.1:5000`:
 
-* **Password Generation**: Produces random 64-character alphanumeric passwords (`[a-zA-Z0-9]`) using cryptographically secure random number generators (`secrets` module / CSPRNG) with ~381 bits of entropy.
-* **PHP `PASSWORD_BCRYPT` Hash**: Generates 60-character bcrypt hashes using `$2y$` prefix (or `$2b$`) with configurable cost (default: 10), matching PHP's native:
-  ```php
-  $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
-  $isValid = password_verify($password, $hash); // Returns true
-  ```
-* **Python Usage**:
-  ```python
-  import password_tool
+| Endpoint | Method | Description | Request Body Parameters |
+|---|---|---|---|
+| `/api/generate-keys` | `POST` | Generates RSA keypair | `{"key_size": 2048, "format": "pkcs8"}` |
+| `/api/encrypt` | `POST` | Encrypts plaintext | `{"key": "PEM", "data": "text", "mode": "private", "block_type": 1}` |
+| `/api/decrypt` | `POST` | Decrypts ciphertext | `{"key": "PEM", "data": "base64", "mode": "public", "in_format": "base64"}` |
+| `/api/generate-password` | `POST` | Generates random password | `{"length": 64}` |
+| `/api/hash-password` | `POST` | Hashes password with Bcrypt | `{"password": "str", "cost": 10, "prefix": "2y"}` |
+| `/api/verify-password` | `POST` | Verifies Bcrypt hash | `{"password": "str", "hash": "str"}` |
+| `/api/generate-and-hash` | `POST` | Generates password & hash | `{"length": 64, "cost": 10, "prefix": "2y"}` |
+| `/api/jwt/encode` | `POST` | Signs & encodes JWT | `{"payload": {}, "key": "PEM/secret", "algorithm": "RS256", "headers": {}}` |
+| `/api/jwt/decode` | `POST` | Decodes & verifies JWT | `{"token": "str", "key": "PEM/secret", "verify": true}` |
 
-  # 1. Generate 64-char password
-  password = password_tool.generate_password(64)
+---
 
-  # 2. Hash using PHP PASSWORD_BCRYPT logic
-  hashed = password_tool.hash_password(password, cost=10, prefix="2y")
+## 🔄 Cross-Language Interoperability
 
-  # 3. Verify
-  is_valid = password_tool.verify_password(password, hashed)
-  ```
+Ciphertext, hashes, and JWT tokens produced by this tool are 100% interoperable across standard runtimes:
 
-## Cross-Language Compatibility
-
-Ciphertext produced by this tool is 100% interoperable across standard cryptography runtimes:
-
-### Node.js
+### Node.js (RSA PKCS#1 v1.5)
 ```javascript
 const crypto = require('crypto');
 const fs = require('fs');
 
-const privateKey = fs.readFileSync('private_key.pem', 'utf8');
-const publicKey = fs.readFileSync('public_key.pem', 'utf8');
+const privKey = fs.readFileSync('private_key.pem', 'utf8');
+const pubKey = fs.readFileSync('public_key.pem', 'utf8');
 
-// Encrypt with Private Key (PKCS#1 v1.5)
+// Encrypt with Private Key
 const cipher = crypto.privateEncrypt({
-  key: privateKey,
+  key: privKey,
   padding: crypto.constants.RSA_PKCS1_PADDING
 }, Buffer.from('Hello World'));
 
-// Decrypt with Public Key (PKCS#1 v1.5)
+// Decrypt with Public Key
 const plain = crypto.publicDecrypt({
-  key: publicKey,
+  key: pubKey,
   padding: crypto.constants.RSA_PKCS1_PADDING
 }, cipher);
 
 console.log(plain.toString()); // "Hello World"
 ```
 
+### PHP (Password Bcrypt)
+```php
+<?php
+// Hashes generated by this tool verify natively in PHP:
+$hash = '$2y$10$...';
+$password = '...';
+
+$isValid = password_verify($password, $hash);
+echo $isValid ? "Valid\n" : "Invalid\n"; // Valid
+```
+
 ### Java (Standard SunJCE)
 ```java
-import javax.crypto.Cipher;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.nio.charset.StandardCharsets;
-
 Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-
-// Encrypt with PrivateKey
-cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-byte[] ciphertext = cipher.doFinal("Hello World".getBytes(StandardCharsets.UTF_8));
-
-// Decrypt with PublicKey
 cipher.init(Cipher.DECRYPT_MODE, publicKey);
-byte[] plaintext = cipher.doFinal(ciphertext);
-
-System.out.println(new String(plaintext, StandardCharsets.UTF_8)); // "Hello World"
-```
-
-### Python API
-
-#### RSA Private Encryption & Public Decryption
-```python
-import rsa_crypto
-
-priv = rsa_crypto.load_private_key(open("keys/private_key.pem").read())
-pub = rsa_crypto.load_public_key(open("keys/public_key.pem").read())
-
-# Encrypt with Private Key
-ciphertext = rsa_crypto.encrypt_private(b"Hello World", priv, block_type=1)
-
-# Decrypt with Public Key
-plaintext = rsa_crypto.decrypt_public(ciphertext, pub)
-print(plaintext.decode("utf-8")) # "Hello World"
-```
-
-#### JWT Encode, Sign & Verify
-```python
-import jwt_tool
-
-# Asymmetric Signing with RSA (RS256)
-token = jwt_tool.encode_jwt(
-    payload={"sub": "user_42", "name": "Alice", "role": "admin"},
-    key=open("keys/private_key.pem").read(),
-    algorithm="RS256"
-)
-
-# Verification with RSA Public Key
-result = jwt_tool.decode_jwt(token, key=open("keys/public_key.pem").read())
-print(result["valid"])    # True
-print(result["payload"])  # {'sub': 'user_42', 'name': 'Alice', 'role': 'admin'}
-
-# Symmetric Signing with HMAC (HS256)
-secret = "my-super-secret-key-1234567890"
-token_hmac = jwt_tool.encode_jwt({"sub": "user_42"}, key=secret, algorithm="HS256")
-res_hmac = jwt_tool.decode_jwt(token_hmac, key=secret)
-print(res_hmac["valid"])  # True
+byte[] plainBytes = cipher.doFinal(cipherBytes);
+System.out.println(new String(plainBytes, StandardCharsets.UTF_8));
 ```
 
 ---
 
-## Cryptographic Design Notes
+## 📁 Project Structure
 
-- **Mathematical Foundations**:
-  - RSA modular exponentiation is fundamentally symmetric:
-    $$\left(M^d\right)^e \equiv M \pmod n \quad \text{and} \quad \left(M^e\right)^d \equiv M \pmod n$$
-  - When encrypting with a private key, the system pads message $D$ into an encryption block $EB$ of length $k = \lceil \text{modulus bits} / 8 \rceil$, then computes $C = (EB)^d \pmod n$.
-  - When decrypting with a public key, the system computes $EB = (C)^e \pmod n$, validates the padding bytes, and strips the prefix to extract $D$.
-- **PKCS#1 v1.5 Format**:
-  $$EB = 0x00 \mathbin{\Vert} BT \mathbin{\Vert} PS \mathbin{\Vert} 0x00 \mathbin{\Vert} D$$
-  - **Block Type 1 (`BT = 0x01`)**: $PS$ is filled with octets of value `0xFF` (at least 8 bytes). Standard across OpenSSL, Node.js `crypto.privateEncrypt`, and Java.
-  - **Block Type 2 (`BT = 0x02`)**: $PS$ is filled with pseudo-random non-zero octets.
-- **Payload Capacity**:
-  - For a 2048-bit key ($k = 256$ bytes), maximum single-block payload is $256 - 11 = 245$ bytes.
-  - In multi-block (chunked) mode, payloads of any size are automatically partitioned, encrypted in blocks of 256 bytes, and concatenated.
+```text
+RSA_Encrypt_Decrypt/
+├── rsa_crypto.py          # Core RSA PKCS#1 v1.5 encryption/decryption engine
+├── password_tool.py       # 64-char CSPRNG password generator & PHP Bcrypt hasher
+├── jwt_tool.py            # RFC 7519 JWT signing, verification & timestamp engine
+├── rsa_tool.py            # Full-featured Python CLI application
+├── rsa_tool.js            # Node.js CLI implementation
+├── server.py              # Python HTTP server & REST API
+├── server.js              # Node.js HTTP server & REST API
+├── start_gui.bat          # Windows 1-click batch launcher
+├── start_gui.ps1          # Windows PowerShell launcher
+├── requirements.txt       # Python dependencies (cryptography, bcrypt)
+├── test_rsa_crypto.py     # RSA unit tests & Node.js cross-verification
+├── test_password_tool.py  # Password randomness, entropy & Bcrypt tests
+├── test_jwt_tool.py       # JWT RFC 7519, RS256, HS256 & unverified tests
+├── .gitignore             # Git exclusions (private keys, cache, logs)
+└── web/                   # Web GUI Single-Page Application (SPA)
+    ├── index.html         # Modern responsive HTML5 UI
+    ├── style.css          # Dark/Light theme CSS & layout
+    └── app.js             # Client-side UI logic & instant JWT parser
+```
 
 ---
 
-## Automated Verification Tests
+## 🧪 Automated Verification Tests
 
-Run the full test suite (20 tests covering RSA, Bcrypt & JWT):
+Run the full automated test suite (22 unit tests covering RSA, Bcrypt & JWT):
+
 ```bash
 python -m unittest discover
 ```
-Output:
+
+**Output:**
 ```
-Ran 20 tests in 1.066s
+......................
+----------------------------------------------------------------------
+Ran 22 tests in 1.872s
+
 OK
 ```
-Test modules:
-- `test_rsa_crypto.py`: Key generation, PKCS#1 v1.5 Block Type 1 & 2, chunking, Node.js `crypto` interop.
-- `test_password_tool.py`: 64-char randomness & entropy, PHP `PASSWORD_BCRYPT` compatibility, cost factors.
-- `test_jwt_tool.py`: RFC 7519 compliance, RS256/384/512, PS256/384/512, HS256/384/512, `none`, invalid signature rejection, token expiration detection, cross-validation with Node.js `crypto`.
+
+The test suite validates:
+- RSA keypair generation in PKCS#1 and PKCS#8 formats.
+- PKCS#1 v1.5 Block Type 1 & 2 private encryption and public decryption round-trips.
+- Multi-block automatic chunking on long payloads.
+- Password generation entropy, character distribution, and 64-char length.
+- PHP `PASSWORD_BCRYPT` hash verification and cost factor compliance.
+- JWT encoding, RS256/384/512 and PS256 signing with RSA keys.
+- JWT HS256 HMAC secret verification.
+- Instant unverified claim decoding without a public key.
+- Token expiration detection (`exp < now`).
+- Cross-language verification against Node.js `crypto`.
+
+---
+
+## 🐙 Git & Version Control
+
+To upload this repository to GitHub:
+
+```bash
+# 1. Initialize Git and stage files
+git init
+git branch -M main
+git add .
+git commit -m "Initial commit"
+
+# 2. Link your remote repository and push
+git remote add origin https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+git push -u origin main
+```
+
+Private keys and cache folders are automatically excluded by [`.gitignore`](.gitignore).
