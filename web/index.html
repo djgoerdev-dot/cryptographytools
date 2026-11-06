@@ -21,7 +21,6 @@
         </div>
       </div>
       <div class="header-actions">
-        <button id="btnQuickDemo" class="btn btn-accent" title="Run end-to-end demo test">⚡ 1-Click Demo</button>
         <button id="btnJwtHeader" class="btn btn-secondary">🎫 JWT Studio</button>
         <button id="btnGenKeyHeader" class="btn btn-secondary">🔑 Generate Keys</button>
         <button id="btnThemeToggle" class="btn btn-icon" title="Toggle Dark/Light Mode">🌓</button>
@@ -41,9 +40,6 @@
       </button>
       <button class="nav-tab" data-tab="tab-keys">
         <span class="tab-icon">🔑</span> Key Generator & Manager
-      </button>
-      <button class="nav-tab" data-tab="tab-demo">
-        <span class="tab-icon">🧪</span> Step-by-Step Visualizer
       </button>
       <button class="nav-tab" data-tab="tab-docs">
         <span class="tab-icon">📖</span> Guide & Code Samples
@@ -617,67 +613,7 @@
         </div>
       </section>
 
-      <!-- TAB 4: STEP-BY-STEP VISUALIZER -->
-      <section id="tab-demo" class="tab-pane">
-        <div class="card">
-          <div class="card-header">
-            <h2>Interactive End-to-End Cryptographic Step-by-Step Visualizer</h2>
-            <button id="btnRunVisualizer" class="btn btn-primary">▶ Run Live Step-by-Step Test</button>
-          </div>
-          <div class="card-body">
-            <p class="section-desc">
-              Watch exactly how data is encoded, padded according to PKCS#1 v1.5, mathematically exponentiated with private exponent \(d\), and decrypted back with public exponent \(e\).
-            </p>
-
-            <div class="visualizer-steps">
-              <!-- Step 1 -->
-              <div class="step-card" id="vizStep1">
-                <div class="step-badge">Step 1</div>
-                <div class="step-content">
-                  <h4>Plaintext Input</h4>
-                  <pre class="step-code" id="vizPlaintext">&mdash;</pre>
-                  <div class="step-meta" id="vizPlainStats">0 bytes</div>
-                </div>
-              </div>
-
-              <!-- Step 2 -->
-              <div class="step-card" id="vizStep2">
-                <div class="step-badge">Step 2</div>
-                <div class="step-content">
-                  <h4>PKCS#1 v1.5 Padding Block (EB = 00 || BT || PS || 00 || D)</h4>
-                  <p class="step-expl">Block Type 01 with 0xFF padding octets:</p>
-                  <pre class="step-code" id="vizPaddingBlock">&mdash;</pre>
-                  <div class="step-meta" id="vizPaddingStats">0 bytes</div>
-                </div>
-              </div>
-
-              <!-- Step 3 -->
-              <div class="step-card" id="vizStep3">
-                <div class="step-badge">Step 3</div>
-                <div class="step-content">
-                  <h4>Private Key Modular Exponentiation: \(C = M^d \pmod n\)</h4>
-                  <p class="step-expl">Encrypted using Private Key exponent \(d\) and modulus \(n\):</p>
-                  <pre class="step-code" id="vizCiphertext">&mdash;</pre>
-                  <div class="step-meta" id="vizCipherStats">Ciphertext Base64</div>
-                </div>
-              </div>
-
-              <!-- Step 4 -->
-              <div class="step-card" id="vizStep4">
-                <div class="step-badge">Step 4</div>
-                <div class="step-content">
-                  <h4>Public Key Decryption: \(M = C^e \pmod n\) &amp; Unpadding</h4>
-                  <p class="step-expl">Decrypted using Public Key exponent \(e = 65537\) and stripped of padding:</p>
-                  <pre class="step-code" id="vizDecrypted">&mdash;</pre>
-                  <div class="step-meta" id="vizDecStats">Match Status</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 5: DOCS & CODE SAMPLES -->
+      <!-- TAB 4: DOCS & CODE SAMPLES -->
       <section id="tab-docs" class="tab-pane">
         <div class="card">
           <div class="card-header">

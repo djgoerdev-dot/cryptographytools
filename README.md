@@ -16,7 +16,6 @@ Available as an **Interactive Web GUI** (port 5000), a fast **Command-Line Inter
   - [2. 64-Char Password & Bcrypt Studio](#2-64-char-password--bcrypt-studio)
   - [3. JWT Studio (Sign, Verify & Inspect)](#3-jwt-studio-sign-verify--inspect)
   - [4. RSA Key Generator & Manager](#4-rsa-key-generator--manager)
-  - [5. Step-by-Step Visualizer](#5-step-by-step-visualizer)
 - [Command Line Interface (CLI)](#-command-line-interface-cli)
   - [RSA Key Generation](#rsa-key-generation)
   - [RSA Encryption & Decryption](#rsa-encryption--decryption)
@@ -149,11 +148,6 @@ The Web GUI is designed with a responsive, modern dark/light interface organized
 - Generate 1024, 2048, 3072, or 4096-bit RSA keypairs.
 - Export in PKCS#8 or PKCS#1 PEM formats.
 - 1-click clipboard copy or `.pem` file download.
-
-### 5. Step-by-Step Visualizer
-- Interactive breakdown of the PKCS#1 block construction:
-  $$EB = 0x00 \mathbin{\Vert} BT \mathbin{\Vert} PS \mathbin{\Vert} 0x00 \mathbin{\Vert} D$$
-- Mathematical explanation of modular exponentiation ($C = M^d \pmod n$) and recovery ($M = C^e \pmod n$).
 
 ---
 

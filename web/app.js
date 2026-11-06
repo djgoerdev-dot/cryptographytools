@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupKeyManager();
   setupEncryptionTab();
   setupDecryptionTab();
-  setupVisualizer();
-  setupQuickDemo();
   setupJwtTab();
 
   // Auto-generate fresh 2048-bit keypair on initial load
@@ -569,71 +567,6 @@ function setupDecryptionTab() {
   document.getElementById('btnDownloadPlaintext').addEventListener('click', () => {
     if (!plainOutput.value) return;
     downloadFile('decrypted_plaintext.txt', plainOutput.value);
-  });
-}
-
-// Step-by-Step Visualizer
-function setupVisualizer() {
-  const btnRun = document.getElementById('btnRunVisualizer');
-  btnRun.addEventListener('click', async () => {
-    btnRun.textContent = 'Running...';
-    btnRun.disabled = true;
-
-    try {
-      if (!activeKeypair.privateKey || !activeKeypair.publicKey) {
-        await generateKeys(2048, true);
-      }
-
-      const testMsg = "Hello RSA! Tested at " + new Date().toLocaleTimeString();
-      document.getElementById('vizPlaintext').textContent = testMsg;
-      document.getElementById('vizPlainStats').textContent = `${testMsg.length} chars (${new TextEncoder().encode(testMsg).length} bytes)`;
-
-      const msgBytes = new TextEncoder().encode(testMsg);
-      const k = 256;
-      const padLen = k - 3 - msgBytes.length;
-      document.getElementById('vizPaddingBlock').textContent =
-        `00 || 01 || [${padLen} octets of 0xFF] || 00 || "${testMsg}"\nTotal Block Length: 256 octets (2048 bits)`;
-      document.getElementById('vizPaddingStats').textContent = `Block size: 256 bytes (Header: 2B, Padding: ${padLen}B, Delimiter: 1B, Data: ${msgBytes.length}B)`;
-
-      const encRes = await callApi('/api/encrypt', {
-        key: activeKeypair.privateKey,
-        data: testMsg,
-        in_format: 'text',
-        block_type: 1,
-        chunk: true,
-        mode: 'private'
-      });
-
-      document.getElementById('vizCiphertext').textContent = encRes.base64;
-      document.getElementById('vizCipherStats').textContent = `Encrypted with Private Key exponent (d). Length: ${encRes.total_bytes} bytes.`;
-
-      const decRes = await callApi('/api/decrypt', {
-        key: activeKeypair.publicKey,
-        data: encRes.base64,
-        in_format: 'base64',
-        block_type: 1,
-        mode: 'public'
-      });
-
-      document.getElementById('vizDecrypted').textContent = decRes.text;
-      const isMatch = (decRes.text === testMsg);
-      document.getElementById('vizDecStats').textContent = isMatch ? '✓ VERIFIED MATCH: Decrypted message matches original plaintext!' : 'Mismatch';
-
-      showToast('Visualizer execution completed successfully!');
-    } catch (err) {
-      alert(`Visualizer Error: ${err.message}`);
-    } finally {
-      btnRun.textContent = '▶ Run Live Step-by-Step Test';
-      btnRun.disabled = false;
-    }
-  });
-}
-
-// 1-Click Demo
-function setupQuickDemo() {
-  document.getElementById('btnQuickDemo').addEventListener('click', async () => {
-    switchTab('tab-demo');
-    document.getElementById('btnRunVisualizer').click();
   });
 }
 
