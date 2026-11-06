@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDecryptionTab();
   setupVisualizer();
   setupQuickDemo();
-  setupPasswordTab();
   setupJwtTab();
 
   // Auto-generate fresh 2048-bit keypair on initial load
@@ -680,171 +679,6 @@ function downloadFile(filename, content) {
   URL.revokeObjectURL(url);
 }
 
-// Password & Bcrypt Tab
-function setupPasswordTab() {
-  const pwdOutput = document.getElementById('pwdOutput');
-  const pwdStats = document.getElementById('pwdStats');
-  const pwdLength = document.getElementById('pwdLength');
-  const btnRegen = document.getElementById('btnRegenPassword');
-  const btnToggleVis = document.getElementById('btnTogglePwdVis');
-  const btnCopyPwd = document.getElementById('btnCopyPassword');
-  const btnSendToEnc = document.getElementById('btnSendPwdToEncrypt');
-
-  const hashOutput = document.getElementById('bcryptHashOutput');
-  const hashStats = document.getElementById('hashStats');
-  const bcryptCost = document.getElementById('bcryptCost');
-  const bcryptPrefix = document.getElementById('bcryptPrefix');
-  const btnRehash = document.getElementById('btnHashPassword');
-  const btnCopyHash = document.getElementById('btnCopyHash');
-  const phpPreview = document.getElementById('phpCodePreview');
-
-  const verifyPwdInput = document.getElementById('verifyPwdInput');
-  const verifyHashInput = document.getElementById('verifyHashInput');
-  const btnTestVerify = document.getElementById('btnTestVerify');
-  const verifyResultAlert = document.getElementById('verifyResultAlert');
-  const verifyResultIcon = document.getElementById('verifyResultIcon');
-  const verifyResultText = document.getElementById('verifyResultText');
-
-  const btnHeader = document.getElementById('btnPasswordHeader');
-  if (btnHeader) {
-    btnHeader.addEventListener('click', () => {
-      switchTab('tab-password');
-      if (!pwdOutput.value) handleGenerate();
-    });
-  }
-
-  let isHidden = false;
-  let rawPassword = '';
-
-  const updatePhpPreview = (pwd, cost, prefix) => {
-    if (!phpPreview) return;
-    const samplePwd = pwd ? (pwd.length > 20 ? pwd.substring(0, 20) + '...' : pwd) : 'my_password';
-    phpPreview.innerHTML = `<code>$password = '${samplePwd}';\n$hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => ${cost}]);\n$isValid = password_verify($password, $hash); // true</code>`;
-  };
-
-  const handleGenerate = async () => {
-    const length = parseInt(pwdLength.value || '64', 10);
-    const cost = parseInt(bcryptCost.value || '10', 10);
-    const prefix = bcryptPrefix.value || '2y';
-
-    btnRegen.textContent = 'Generating...';
-    btnRegen.disabled = true;
-
-    try {
-      const res = await callApi('/api/generate-and-hash', { length, cost, prefix });
-      rawPassword = res.password;
-      pwdOutput.value = rawPassword;
-      pwdStats.textContent = `${res.password.length} characters`;
-
-      hashOutput.value = res.hash;
-      hashStats.textContent = `${res.hash.length} characters`;
-
-      verifyPwdInput.value = rawPassword;
-      verifyHashInput.value = res.hash;
-      verifyResultAlert.classList.add('hidden');
-
-      updatePhpPreview(rawPassword, cost, prefix);
-      showToast('Generated 64-char alphanumeric password & Bcrypt hash!');
-    } catch (err) {
-      alert(`Generation failed: ${err.message}`);
-    } finally {
-      btnRegen.textContent = '⚡ Generate New Password';
-      btnRegen.disabled = false;
-    }
-  };
-
-  btnRegen.addEventListener('click', handleGenerate);
-
-  btnToggleVis.addEventListener('click', () => {
-    if (!rawPassword) return;
-    isHidden = !isHidden;
-    if (isHidden) {
-      pwdOutput.value = '•'.repeat(rawPassword.length);
-      btnToggleVis.textContent = '👁️ Reveal';
-    } else {
-      pwdOutput.value = rawPassword;
-      btnToggleVis.textContent = '👁️ Hide';
-    }
-  });
-
-  btnCopyPwd.addEventListener('click', () => {
-    if (!rawPassword) return;
-    navigator.clipboard.writeText(rawPassword);
-    showToast('64-character password copied to clipboard!');
-  });
-
-  btnCopyHash.addEventListener('click', () => {
-    if (!hashOutput.value) return;
-    navigator.clipboard.writeText(hashOutput.value);
-    showToast('Bcrypt hash copied to clipboard!');
-  });
-
-  btnRehash.addEventListener('click', async () => {
-    const pwd = rawPassword || pwdOutput.value.trim();
-    if (!pwd) return alert('Please enter or generate a password first.');
-    const cost = parseInt(bcryptCost.value || '10', 10);
-    const prefix = bcryptPrefix.value || '2y';
-
-    btnRehash.textContent = 'Hashing...';
-    btnRehash.disabled = true;
-    try {
-      const res = await callApi('/api/hash-password', { password: pwd, cost, prefix });
-      hashOutput.value = res.hash;
-      hashStats.textContent = `${res.hash.length} characters`;
-      verifyHashInput.value = res.hash;
-      updatePhpPreview(pwd, cost, prefix);
-      showToast('Password re-hashed with PASSWORD_BCRYPT!');
-    } catch (err) {
-      alert(`Hashing failed: ${err.message}`);
-    } finally {
-      btnRehash.textContent = '🔒 Re-Hash';
-      btnRehash.disabled = false;
-    }
-  });
-
-  btnSendToEnc.addEventListener('click', () => {
-    const pwd = rawPassword || pwdOutput.value.trim();
-    if (!pwd) return alert('Please generate a password first.');
-    document.getElementById('encPlaintext').value = pwd;
-    document.getElementById('encPlaintext').dispatchEvent(new Event('input'));
-    switchTab('tab-encrypt');
-    showToast('64-character password loaded into RSA Encrypt tab!');
-  });
-
-  btnTestVerify.addEventListener('click', async () => {
-    const pwd = verifyPwdInput.value;
-    const hash = verifyHashInput.value.trim();
-    if (!pwd || !hash) return alert('Please enter both password and hash to test verification.');
-
-    btnTestVerify.textContent = 'Verifying...';
-    btnTestVerify.disabled = true;
-
-    try {
-      const res = await callApi('/api/verify-password', { password: pwd, hash });
-      verifyResultAlert.classList.remove('hidden');
-      if (res.valid) {
-        verifyResultAlert.style.borderColor = 'rgba(16, 185, 129, 0.5)';
-        verifyResultAlert.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
-        verifyResultIcon.textContent = '✓';
-        verifyResultText.innerHTML = '<strong>VERIFIED:</strong> Password matches the Bcrypt hash! <code>password_verify($pwd, $hash) === true</code>';
-      } else {
-        verifyResultAlert.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-        verifyResultAlert.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
-        verifyResultIcon.textContent = '✗';
-        verifyResultText.innerHTML = '<strong>MISMATCH:</strong> Password does NOT match the hash! <code>password_verify($pwd, $hash) === false</code>';
-      }
-    } catch (err) {
-      alert(`Verification failed: ${err.message}`);
-    } finally {
-      btnTestVerify.textContent = '✓ Verify Password Against Hash';
-      btnTestVerify.disabled = false;
-    }
-  });
-
-  // Auto-generate on initial load
-  handleGenerate();
-}
-
 // JWT Studio Tab (Encode, Decode, Sign, Verify & Instant Claims Breakdown)
 function setupJwtTab() {
   const algSelect = document.getElementById('jwtAlgorithm');
@@ -1291,28 +1125,31 @@ function setupJwtTab() {
     }
   });
 
-  btnUsePwdSecret.addEventListener('click', async () => {
-    try {
-      const res = await callApi('/api/generate-password', { length: 64 });
-      signKeyInput.value = res.password;
-      verifyKeyInput.value = res.password;
-      showToast('Generated 64-char random HMAC secret!');
-      handleEncodeAndSign(false);
-    } catch (e) {
-      alert('Failed to generate secret: ' + e.message);
+  const generateSecureSecret = (len = 64) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = new Uint8Array(len);
+    window.crypto.getRandomValues(bytes);
+    let result = '';
+    for (let i = 0; i < len; i++) {
+      result += chars[bytes[i] % chars.length];
     }
+    return result;
+  };
+
+  btnUsePwdSecret.addEventListener('click', () => {
+    const secret = generateSecureSecret(64);
+    signKeyInput.value = secret;
+    verifyKeyInput.value = secret;
+    showToast('Generated 64-char random HMAC secret!');
+    handleEncodeAndSign(false);
   });
 
   if (btnUsePwdSecretForVerify) {
-    btnUsePwdSecretForVerify.addEventListener('click', async () => {
-      try {
-        const res = await callApi('/api/generate-password', { length: 64 });
-        verifyKeyInput.value = res.password;
-        showToast('Generated 64-char random HMAC secret for verification!');
-        handleRawTokenInput(true);
-      } catch (e) {
-        alert('Failed to generate secret: ' + e.message);
-      }
+    btnUsePwdSecretForVerify.addEventListener('click', () => {
+      const secret = generateSecureSecret(64);
+      verifyKeyInput.value = secret;
+      showToast('Generated 64-char random HMAC secret for verification!');
+      handleRawTokenInput(true);
     });
   }
 

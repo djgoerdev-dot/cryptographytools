@@ -1046,5 +1046,141 @@ body {
   font-size: 0.75rem;
 }
 
+/* ========================================================
+   Advertisement Slots & Monetization Placeholders
+   ======================================================== */
+.ad-slot-wrapper {
+  margin: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ad-slot-header {
+  width: 100%;
+  max-width: 728px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.25rem;
+}
+
+.ad-badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.ad-box {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.ad-box:hover {
+  border-color: var(--accent-primary);
+}
+
+.ad-leaderboard {
+  max-width: 728px;
+  min-height: 90px;
+}
+
+.ad-placeholder-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.ad-icon {
+  font-size: 1.75rem;
+  opacity: 0.8;
+}
+
+.ad-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ad-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.ad-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Footer Styling */
+.app-footer {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-tagline {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.footer-sep {
+  opacity: 0.5;
+}
+
+.footer-link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .ad-placeholder-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+
 
 

@@ -9,7 +9,11 @@ import sys
 import json
 import base64
 import webbrowser
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+try:
+    from http.server import ThreadingHTTPServer as ServerClass
+except ImportError:
+    from http.server import HTTPServer as ServerClass
+from http.server import SimpleHTTPRequestHandler
 import rsa_crypto
 import password_tool
 import jwt_tool
@@ -24,6 +28,9 @@ class RSAHandler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "SAMEORIGIN")
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
         super().end_headers()
 
     def log_message(self, format, *args):
@@ -47,6 +54,11 @@ class RSAHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+
+    def do_GET(self):
+        if self.path.split("?")[0] == "/api/health":
+            return self.send_json(200, {"status": "ok", "app": "RSA & JWT Studio"})
+        super().do_GET()
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))
@@ -269,14 +281,20 @@ class RSAHandler(SimpleHTTPRequestHandler):
         else:
             return self.send_json(404, {"success": False, "error": "Endpoint not found"})
 
-def start_server(host="127.0.0.1", port=5000, open_browser=True):
+def start_server(host=None, port=None, open_browser=False):
+    if host is None:
+        host = os.environ.get("HOST", "0.0.0.0")
+    if port is None:
+        port = int(os.environ.get("PORT", 5000))
+
     os.makedirs(WEB_DIR, exist_ok=True)
-    server = HTTPServer((host, port), RSAHandler)
+    server = ServerClass((host, port), RSAHandler)
     url = f"http://{host}:{port}"
     print(f"\n=======================================================")
-    print(f" RSA Private Encrypt / Public Decrypt Web UI")
+    print(f" RSA & JWT Studio Web Server (Production Ready)")
     print(f" Running at: {url}")
-    print(f" Press Ctrl+C to stop the server.")
+    print(f" Server Class: {server.__class__.__name__}")
+    print(f" Press Ctrl+C to stop.")
     print(f"=======================================================\n")
 
     if open_browser:
@@ -293,10 +311,12 @@ def start_server(host="127.0.0.1", port=5000, open_browser=True):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Start RSA Web GUI server")
-    parser.add_argument("--host", default="127.0.0.1", help="Host to bind (default: 127.0.0.1)")
-    parser.add_argument("--port", type=int, default=5000, help="Port to bind (default: 5000)")
-    parser.add_argument("--no-browser", action="store_true", help="Do not automatically open browser")
+    parser = argparse.ArgumentParser(description="Start RSA & JWT Web GUI server")
+    default_host = os.environ.get("HOST", "0.0.0.0")
+    default_port = int(os.environ.get("PORT", 5000))
+    parser.add_argument("--host", default=default_host, help=f"Host to bind (default: {default_host})")
+    parser.add_argument("--port", type=int, default=default_port, help=f"Port to bind (default: {default_port})")
+    parser.add_argument("--browser", action="store_true", help="Open browser automatically")
     args = parser.parse_args()
 
-    start_server(host=args.host, port=args.port, open_browser=not args.no_browser)
+    start_server(host=args.host, port=args.port, open_browser=args.browser)

@@ -99,7 +99,16 @@ python rsa_tool.py gui
 node server.js
 ```
 
-Your default web browser will open automatically to **`http://127.0.0.1:5000`**.
+### 🐳 Docker Container (Production)
+```bash
+# Build production image
+docker build -t crypto-tools .
+
+# Run container (binds to http://localhost:5000)
+docker run -d -p 5000:5000 --name crypto-toolkit crypto-tools
+```
+
+Your default web browser can access the web application at **`http://127.0.0.1:5000`** (or healthcheck probe at `http://127.0.0.1:5000/api/health`).
 
 ---
 
@@ -349,6 +358,8 @@ System.out.println(new String(plainBytes, StandardCharsets.UTF_8));
 
 ```text
 RSA_Encrypt_Decrypt/
+├── Dockerfile             # Production multi-stage / slim Docker container
+├── .dockerignore          # Docker build exclusion rules
 ├── rsa_crypto.py          # Core RSA PKCS#1 v1.5 encryption/decryption engine
 ├── password_tool.py       # 64-char CSPRNG password generator & PHP Bcrypt hasher
 ├── jwt_tool.py            # RFC 7519 JWT signing, verification & timestamp engine

@@ -22,7 +22,6 @@
       </div>
       <div class="header-actions">
         <button id="btnQuickDemo" class="btn btn-accent" title="Run end-to-end demo test">⚡ 1-Click Demo</button>
-        <button id="btnPasswordHeader" class="btn btn-secondary">🔐 64-Char Password</button>
         <button id="btnJwtHeader" class="btn btn-secondary">🎫 JWT Studio</button>
         <button id="btnGenKeyHeader" class="btn btn-secondary">🔑 Generate Keys</button>
         <button id="btnThemeToggle" class="btn btn-icon" title="Toggle Dark/Light Mode">🌓</button>
@@ -37,9 +36,6 @@
       <button class="nav-tab" data-tab="tab-decrypt">
         <span class="tab-icon">🔓</span> Decrypt
       </button>
-      <button class="nav-tab" data-tab="tab-password">
-        <span class="tab-icon">🔐</span> 64-Char Password &amp; Bcrypt
-      </button>
       <button class="nav-tab" data-tab="tab-jwt">
         <span class="tab-icon">🎫</span> JWT Studio (Sign &amp; Verify)
       </button>
@@ -53,6 +49,23 @@
         <span class="tab-icon">📖</span> Guide & Code Samples
       </button>
     </nav>
+
+    <!-- Top Advertisement Slot Placeholder -->
+    <div class="ad-slot-wrapper ad-slot-top" id="ad-top-wrapper">
+      <div class="ad-slot-header">
+        <span class="ad-badge">Advertisement</span>
+      </div>
+      <div class="ad-box ad-leaderboard" data-ad-unit="top-banner">
+        <!-- REPLACE WITH AD SCRIPT (EthicalAds, Carbon, AdSense) -->
+        <div class="ad-placeholder-inner">
+          <span class="ad-icon">📢</span>
+          <div class="ad-copy">
+            <span class="ad-title">Sponsor Ad Unit &bull; 728&times;90 Leaderboard</span>
+            <span class="ad-desc">Embed your EthicalAds, Carbon Ads, or Google AdSense snippet here</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Workflow Mode Quick Switcher -->
     <div class="mode-selector-banner">
@@ -305,129 +318,6 @@
         </div>
       </section>
 
-      <!-- TAB: PASSWORD & BCRYPT -->
-      <section id="tab-password" class="tab-pane">
-        <div class="grid-two-cols">
-          <!-- Password Card -->
-          <div class="card">
-            <div class="card-header">
-              <h2>1. Random 64-Character Alphanumeric Password</h2>
-              <div class="card-actions">
-                <button id="btnRegenPassword" class="btn btn-primary btn-sm">⚡ Generate New Password</button>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group">
-                <div class="label-row">
-                  <label for="pwdOutput">Generated Password</label>
-                  <span id="pwdStats" class="badge badge-success">64 characters</span>
-                </div>
-                <div class="pwd-input-wrap">
-                  <textarea id="pwdOutput" class="code-textarea output-area" rows="4" readonly placeholder="Click Generate to create password..."></textarea>
-                </div>
-                <div class="meta-row">
-                  <span>Charset: <code>[a-zA-Z0-9]</code> (CSPRNG &bull; 381 bits entropy)</span>
-                  <button id="btnTogglePwdVis" class="btn btn-sm btn-ghost">👁️ Reveal / Hide</button>
-                </div>
-              </div>
-
-              <div class="options-box">
-                <div class="option-item">
-                  <label for="pwdLength">Password Length:</label>
-                  <input type="number" id="pwdLength" class="select-control" value="64" min="8" max="256">
-                </div>
-              </div>
-
-              <div class="action-buttons-row">
-                <button id="btnCopyPassword" class="btn btn-secondary">📋 Copy Password</button>
-                <button id="btnSendPwdToEncrypt" class="btn btn-accent">➡️ Send to RSA Encrypt Tab</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bcrypt Hash Card -->
-          <div class="card">
-            <div class="card-header">
-              <h2>2. PHP <code>PASSWORD_BCRYPT</code> Hash</h2>
-              <div class="card-actions">
-                <button id="btnHashPassword" class="btn btn-primary btn-sm">🔒 Re-Hash</button>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group">
-                <div class="label-row">
-                  <label for="bcryptHashOutput">Bcrypt Hash (PHP <code>password_hash</code>)</label>
-                  <span id="hashStats" class="badge badge-success">60 characters</span>
-                </div>
-                <textarea id="bcryptHashOutput" class="code-textarea output-area" rows="4" readonly placeholder="Bcrypt hash will appear here..."></textarea>
-                <div class="meta-row">
-                  <span id="hashBreakdown">Format: <code>$2y$10$&lt;22-salt-chars&gt;&lt;31-hash-chars&gt;</code></span>
-                </div>
-              </div>
-
-              <div class="options-box">
-                <div class="grid-two-cols">
-                  <div class="option-item">
-                    <label for="bcryptCost">Cost Factor (<code>cost</code>):</label>
-                    <select id="bcryptCost" class="select-control">
-                      <option value="8">8 (Faster)</option>
-                      <option value="10" selected>10 (PHP Default Standard)</option>
-                      <option value="11">11</option>
-                      <option value="12">12 (High Security)</option>
-                    </select>
-                  </div>
-                  <div class="option-item">
-                    <label for="bcryptPrefix">Prefix:</label>
-                    <select id="bcryptPrefix" class="select-control">
-                      <option value="2y" selected>$2y$ (PHP PASSWORD_BCRYPT Standard)</option>
-                      <option value="2b">$2b$ (BSD / Unix Bcrypt Standard)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="action-buttons-row">
-                <button id="btnCopyHash" class="btn btn-secondary">📋 Copy Hash</button>
-              </div>
-
-              <!-- PHP Code Preview -->
-              <div class="info-alert">
-                <div class="info-icon">🐘</div>
-                <div class="info-text">
-                  <strong>PHP Compatibility:</strong> This hash is 100% compatible with PHP's native:
-                  <pre class="step-code" style="margin-top: 0.5rem; padding: 0.5rem;" id="phpCodePreview"><code>$hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 10]);
-$isValid = password_verify($password, $hash); // true</code></pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Verification Tester -->
-        <div class="card mt-4">
-          <div class="card-header">
-            <h2>3. Test Verification (<code>password_verify</code>)</h2>
-            <button id="btnTestVerify" class="btn btn-accent">✓ Verify Password Against Hash</button>
-          </div>
-          <div class="card-body">
-            <div class="grid-two-cols">
-              <div class="form-group">
-                <label for="verifyPwdInput">Test Password</label>
-                <input type="text" id="verifyPwdInput" class="select-control" placeholder="Enter password to test...">
-              </div>
-              <div class="form-group">
-                <label for="verifyHashInput">Test Bcrypt Hash</label>
-                <input type="text" id="verifyHashInput" class="select-control" placeholder="Enter $2y$ or $2b$ hash...">
-              </div>
-            </div>
-            <div id="verifyResultAlert" class="info-alert hidden" style="margin-top: 0.5rem;">
-              <div class="info-icon" id="verifyResultIcon">✓</div>
-              <div class="info-text" id="verifyResultText"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- TAB: JWT STUDIO -->
       <section id="tab-jwt" class="tab-pane">
         <div class="grid-two-cols">
@@ -543,7 +433,7 @@ $isValid = password_verify($password, $hash); // true</code></pre>
                   <label for="jwtSignKey" id="jwtSignKeyLabel">Signing Key (RSA Private Key PEM)</label>
                   <div class="label-actions">
                     <button id="btnUseActivePrivForJwt" class="btn btn-sm btn-secondary">Use Active RSA Key</button>
-                    <button id="btnUsePwdAsSecretForJwt" class="btn btn-sm btn-secondary hidden">Use 64-Char Password</button>
+                    <button id="btnUsePwdAsSecretForJwt" class="btn btn-sm btn-secondary hidden">⚡ Generate Secret</button>
                   </div>
                 </div>
                 <textarea id="jwtSignKey" class="code-textarea" rows="5" placeholder="-----BEGIN PRIVATE KEY----- ..."></textarea>
@@ -649,7 +539,7 @@ $isValid = password_verify($password, $hash); // true</code></pre>
                   <label for="jwtVerifyKey" id="jwtVerifyKeyLabel">Verification Key (Optional for Claims View)</label>
                   <div class="label-actions">
                     <button id="btnUseActivePubForJwt" class="btn btn-sm btn-secondary">Use Active RSA Key</button>
-                    <button id="btnUsePwdAsSecretForVerify" class="btn btn-sm btn-secondary hidden">Use 64-Char Password</button>
+                    <button id="btnUsePwdAsSecretForVerify" class="btn btn-sm btn-secondary hidden">⚡ Generate Secret</button>
                   </div>
                 </div>
                 <textarea id="jwtVerifyKey" class="code-textarea" rows="3" placeholder="Paste RSA Public Key PEM or HMAC secret to verify signature (optional)..."></textarea>
@@ -872,6 +762,39 @@ System.out.println(new String(plaintext, StandardCharsets.UTF_8)); // "Hello Wor
       </section>
 
     </main>
+
+    <!-- Bottom Advertisement Slot Placeholder -->
+    <div class="ad-slot-wrapper ad-slot-bottom" id="ad-bottom-wrapper">
+      <div class="ad-slot-header">
+        <span class="ad-badge">Sponsored &bull; Developer Tools</span>
+      </div>
+      <div class="ad-box ad-leaderboard" data-ad-unit="bottom-banner">
+        <!-- REPLACE WITH AD SCRIPT (EthicalAds, Carbon, AdSense, or Affiliate Cards) -->
+        <div class="ad-placeholder-inner">
+          <span class="ad-icon">🔒</span>
+          <div class="ad-copy">
+            <span class="ad-title">Recommended Developer &amp; Security Tools</span>
+            <span class="ad-desc">Explore privacy-first password managers, cloud KMS, and edge security solutions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Site Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p class="footer-tagline">
+          🔐 <strong>Cryptographic &amp; JWT Toolkit</strong> &bull; Free, client-first developer tools with zero server storage.
+        </p>
+        <div class="footer-links">
+          <span>All cryptographic operations run locally in your browser.</span>
+          <span class="footer-sep">&bull;</span>
+          <a href="#tab-docs" class="footer-link" onclick="switchTab('tab-docs'); return false;">Documentation</a>
+          <span class="footer-sep">&bull;</span>
+          <a href="https://github.com/djgoerdev-dot/cryptographytools" target="_blank" rel="noopener" class="footer-link">GitHub Source</a>
+        </div>
+      </div>
+    </footer>
 
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden"></div>
